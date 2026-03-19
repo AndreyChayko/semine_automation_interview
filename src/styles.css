@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-gray-900;
+  }
+}
+
+@layer components {
+  .form-input {
+    @apply w-full px-3.5 py-2.5 border rounded-lg text-sm outline-none transition-all
+           border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100;
+  }
+
+  .form-input-error {
+    @apply border-red-400 focus:ring-2 focus:ring-red-100 focus:border-red-400;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400
+           text-white font-medium rounded-lg text-sm transition-colors
+           flex items-center justify-center gap-2 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50
+           text-gray-700 font-medium rounded-lg text-sm transition-colors;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+}

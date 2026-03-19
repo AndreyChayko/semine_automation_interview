@@ -1,0 +1,122 @@
+<!-- ─── Tab button (always visible at right edge) ───────────────────────── -->
+<button
+  (click)="toggle()"
+  class="fixed bottom-24 z-[60] bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold tracking-widest px-1.5 py-5 shadow-xl transition-all duration-300"
+  [class]="isOpen() ? 'right-80 rounded-l-lg' : 'right-0 rounded-l-lg'"
+  style="writing-mode: vertical-rl;"
+  title="Toggle developer config panel"
+>
+  DEV
+</button>
+
+<!-- ─── Sliding panel ───────────────────────────────────────────────────── -->
+<div
+  class="fixed top-0 right-0 h-full w-80 bg-white border-l border-gray-200 shadow-2xl z-[55] flex flex-col transition-transform duration-300"
+  [class]="isOpen() ? 'translate-x-0' : 'translate-x-full'"
+>
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-slate-800">
+    <div class="flex items-center gap-2">
+      <!-- Heroicon: wrench-screwdriver -->
+      <svg class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+        <path fill-rule="evenodd" d="M12 6.75a5.25 5.25 0 0 1 6.775-5.025.75.75 0 0 1 .313 1.248l-3.32 3.319c.063.475.276.934.641 1.299.365.365.824.578 1.3.641l3.318-3.319a.75.75 0 0 1 1.248.313 5.25 5.25 0 0 1-5.472 6.756c-1.018-.086-1.87.1-2.309.634L7.344 21.3A3.298 3.298 0 1 1 2.7 16.657l8.684-7.151c.533-.44.72-1.291.634-2.306Zm3.094 8.016a.75.75 0 1 1 1.06 1.06l-2.106 2.106a.75.75 0 1 1-1.06-1.06l2.106-2.106ZM12 8.25a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75h-.008a.75.75 0 0 1-.75-.75V9a.75.75 0 0 1 .75-.75H12Z" clip-rule="evenodd" />
+      </svg>
+      <span class="text-sm font-semibold text-white">Developer Config</span>
+    </div>
+    <button (click)="toggle()" class="text-slate-400 hover:text-white transition-colors">
+      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="flex-1 overflow-y-auto px-5 py-5 space-y-6">
+
+    <!-- ── auth section ───────────────────────────────────────────────── -->
+    <section>
+      <div class="flex items-center gap-2 mb-4">
+        <div class="h-1.5 w-1.5 rounded-full bg-indigo-500"></div>
+        <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">auth</h3>
+      </div>
+
+      <div class="space-y-4">
+
+        <!-- sessionTime -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">
+            sessionTime
+            <span class="ml-1 text-gray-400 font-normal">(ms)</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="1000"
+            [value]="sessionTimeMs()"
+            (input)="onNumberInput(sessionTimeMs.set.bind(sessionTimeMs), $event)"
+            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg font-mono focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          />
+          <p class="mt-1 text-xs text-indigo-500 font-medium">≈ {{ sessionTimeHint() }}</p>
+          <p class="mt-0.5 text-xs text-gray-400">Total session duration before auto-logout.</p>
+        </div>
+
+        <!-- timeBeforeExpiredTrigger -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">
+            timeBeforeExpiredTrigger
+            <span class="ml-1 text-gray-400 font-normal">(ms)</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="1000"
+            [value]="triggerTimeMs()"
+            (input)="onNumberInput(triggerTimeMs.set.bind(triggerTimeMs), $event)"
+            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg font-mono focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          />
+          <p class="mt-1 text-xs font-medium" [class]="triggerTimeMs() === 0 ? 'text-gray-400' : 'text-indigo-500'">
+            ≈ {{ triggerTimeHint() }}
+          </p>
+          <p class="mt-0.5 text-xs text-gray-400">Warn this many ms before expiry. Set to <code class="bg-gray-100 px-1 rounded">0</code> to disable.</p>
+        </div>
+
+        <!-- triggerMessage -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">triggerMessage</label>
+          <textarea
+            rows="3"
+            [value]="triggerMessage()"
+            (input)="onTextInput($event)"
+            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+            placeholder="Warning toast message..."
+          ></textarea>
+          <p class="mt-0.5 text-xs text-gray-400">Shown in warning toast when trigger fires.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Placeholder for future config sections -->
+    <p class="text-xs text-gray-300 text-center italic">More sections coming soon…</p>
+
+  </div>
+
+  <!-- Footer actions -->
+  <div class="border-t border-gray-100 px-5 py-4 flex gap-2.5">
+    <button
+      (click)="save()"
+      class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
+    >
+      Save &amp; Close
+    </button>
+    <button
+      (click)="reset()"
+      class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg transition-colors"
+      title="Reset to defaults"
+    >
+      Reset
+    </button>
+  </div>
+
+</div>
