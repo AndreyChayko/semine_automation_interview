@@ -2,15 +2,19 @@ import { Component, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SessionTimerService } from '../../../core/services/session-timer.service';
+import { InfoPanelComponent } from '../info-panel/info-panel.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, InfoPanelComponent],
   template: `
     <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div class="max-w-full px-4 sm:px-6">
         <div class="flex justify-between items-center h-16 gap-4">
+
+          <!-- Info panel trigger -->
+          <app-info-panel />
 
           <!-- Logo -->
           <a routerLink="/" class="flex items-center gap-2.5 shrink-0">

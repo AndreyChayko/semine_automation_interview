@@ -1,0 +1,253 @@
+<!-- ── Trigger button (rendered inside navbar via selector) ─────────────── -->
+<button
+  (click)="toggle()"
+  class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+  title="About this application"
+>
+  <!-- Heroicon: information-circle -->
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+  </svg>
+  <span class="hidden sm:inline text-sm font-medium">About</span>
+</button>
+
+<!-- ── Backdrop ──────────────────────────────────────────────────────────── -->
+@if (isOpen()) {
+  <div
+    class="fixed inset-0 bg-black/30 z-[70] transition-opacity"
+    (click)="close()"
+    aria-hidden="true"
+  ></div>
+}
+
+<!-- ── Sliding panel ─────────────────────────────────────────────────────── -->
+<div
+  class="fixed top-0 left-0 h-full w-full max-w-xl bg-white shadow-2xl z-[75] flex flex-col transition-transform duration-300 ease-in-out"
+  [class]="isOpen() ? 'translate-x-0' : '-translate-x-full'"
+  role="dialog"
+  aria-label="Project description"
+>
+
+  <!-- Panel header -->
+  <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-indigo-700 to-indigo-500 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-xl bg-white/20 flex items-center justify-center">
+        <span class="text-white font-bold text-lg">S</span>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-white leading-tight">Semine</h1>
+        <p class="text-indigo-200 text-xs">Expense Tracking Demo — Test Brief</p>
+      </div>
+    </div>
+    <button
+      (click)="close()"
+      class="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+    >
+      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Panel body -->
+  <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8 text-gray-700" style="font-family: ui-sans-serif, system-ui, sans-serif;">
+
+    <!-- ── Overview ── -->
+    <section>
+      <h2 class="text-base font-bold text-gray-900 mb-2 flex items-center gap-2">
+        <span class="h-5 w-1 rounded-full bg-indigo-500 inline-block"></span>
+        Overview
+      </h2>
+      <p class="text-sm leading-relaxed text-gray-600">
+        Semine is a <strong class="text-gray-800">single-page Angular application</strong> that simulates
+        a corporate expense management tool. It is purpose-built as an interview exercise to
+        evaluate test automation skills across authentication, stateful UI flows, runtime
+        configuration, and data visualisation.
+      </p>
+      <p class="mt-2 text-sm leading-relaxed text-gray-600">
+        All back-end interactions are emulated by a <strong class="text-gray-800">mock API service</strong>
+        with configurable RxJS delays, so the app behaves like a real network-connected system
+        without any server dependency.
+      </p>
+    </section>
+
+    <!-- ── Demo Accounts ── -->
+    <section>
+      <h2 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="h-5 w-1 rounded-full bg-indigo-500 inline-block"></span>
+        Demo Accounts
+      </h2>
+      <div class="rounded-xl border border-gray-200 overflow-hidden text-sm">
+        <div class="grid grid-cols-3 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wide px-4 py-2.5 border-b border-gray-200">
+          <span>User</span><span>Email</span><span>Password</span>
+        </div>
+        <div class="grid grid-cols-3 px-4 py-3 border-b border-gray-100 items-center">
+          <span class="font-semibold text-gray-800">Alice</span>
+          <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded text-indigo-700">alice&#64;semine.io</code>
+          <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded text-indigo-700">alice123</code>
+        </div>
+        <div class="grid grid-cols-3 px-4 py-3 items-center">
+          <span class="font-semibold text-gray-800">Bob</span>
+          <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded text-indigo-700">bob&#64;semine.io</code>
+          <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded text-indigo-700">bob12345</code>
+        </div>
+      </div>
+      <p class="mt-2 text-xs text-gray-400">Each account has its own independent configuration and expense data.</p>
+    </section>
+
+    <!-- ── Application Pages ── -->
+    <section>
+      <h2 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="h-5 w-1 rounded-full bg-indigo-500 inline-block"></span>
+        Application Pages
+      </h2>
+      <div class="space-y-3">
+
+        <div class="flex gap-3">
+          <div class="mt-0.5 h-6 w-6 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
+            <svg class="h-3.5 w-3.5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-800">Login <code class="ml-1 text-xs font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-500">/login</code></p>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">Email + password form with validation, error display, show/hide password, and one-click credential fill buttons for each demo account.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <div class="mt-0.5 h-6 w-6 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
+            <svg class="h-3.5 w-3.5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-800">Profile <code class="ml-1 text-xs font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-500">/profile</code></p>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">Displays user info and allows editing the profile. Changes are persisted to sessionStorage and reflected in the navbar immediately.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <div class="mt-0.5 h-6 w-6 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
+            <svg class="h-3.5 w-3.5 text-indigo-600" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 3.75a3 3 0 0 0-3 3v.75h21v-.75a3 3 0 0 0-3-3h-15Z"/><path fill-rule="evenodd" d="M22.5 9.75h-21v7.5a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-7.5Z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-800">Expenses <code class="ml-1 text-xs font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-500">/expenses</code></p>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+              Timeline view of all expenses grouped by date. Each login seeds 1–3 <em>paid</em> expenses.
+              New expenses are created via a modal form and have <em>pending</em> status.
+              Pending expenses can be deleted; paid ones are immutable.
+              A monthly budget bar shows current spend vs. the configured cap.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <div class="mt-0.5 h-6 w-6 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
+            <svg class="h-3.5 w-3.5 text-indigo-600" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M3 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm4.5 7.5a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0v-2.25a.75.75 0 0 1 .75-.75Zm3.75-1.5a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0V12Zm2.25-3a.75.75 0 0 1 .75.75v6.75a.75.75 0 0 1-1.5 0V9.75A.75.75 0 0 1 13.5 9Zm3.75-1.5a.75.75 0 0 0-1.5 0v9a.75.75 0 0 0 1.5 0v-9Z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-800">Expense History <code class="ml-1 text-xs font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-500">/expense-history</code></p>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">Bar charts showing spending by category. The current month reflects live data from the Expenses page. The past 6 months are generated pseudo-randomly per user on first login and cached in sessionStorage. Layout switches between list and grid via the DEV panel.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Key Flows ── -->
+    <section>
+      <h2 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="h-5 w-1 rounded-full bg-indigo-500 inline-block"></span>
+        Key User Flows
+      </h2>
+      <div class="space-y-4">
+
+        <div>
+          <p class="text-sm font-semibold text-gray-800 mb-1">Authentication</p>
+          <ol class="text-xs text-gray-500 leading-relaxed space-y-0.5 list-decimal list-inside">
+            <li>Navigate to <code class="bg-gray-100 px-1 rounded">/login</code> (unauthenticated users are redirected here by guard).</li>
+            <li>Enter credentials or use the <em>Use this account</em> buttons.</li>
+            <li>The form validates inline; server errors appear below the submit button.</li>
+            <li>On success, the user is redirected to <code class="bg-gray-100 px-1 rounded">/profile</code> and the session timer starts.</li>
+            <li>Logging out clears all in-memory state and returns to <code class="bg-gray-100 px-1 rounded">/login</code>.</li>
+          </ol>
+        </div>
+
+        <div>
+          <p class="text-sm font-semibold text-gray-800 mb-1">Session Management</p>
+          <ol class="text-xs text-gray-500 leading-relaxed space-y-0.5 list-decimal list-inside">
+            <li>A countdown timer in the navbar shows time remaining (HH:mm:ss).</li>
+            <li>Colour transitions: green → amber (40 % remaining) → red (10 % remaining).</li>
+            <li>A warning toast fires <code class="bg-gray-100 px-1 rounded">timeBeforeExpiredTrigger</code> ms before expiry.</li>
+            <li>On expiry the session ends and the user is automatically logged out.</li>
+            <li>The session state survives page refresh (stored in sessionStorage) but not a new tab.</li>
+          </ol>
+        </div>
+
+        <div>
+          <p class="text-sm font-semibold text-gray-800 mb-1">Adding an Expense</p>
+          <ol class="text-xs text-gray-500 leading-relaxed space-y-0.5 list-decimal list-inside">
+            <li>Click <em>Add Expense</em> on the Expenses page (disabled when quota is exceeded).</li>
+            <li>Fill in title, amount, currency, category, and date in the modal.</li>
+            <li>The new expense appears in the timeline with <em>PENDING</em> status.</li>
+            <li>The monthly budget bar updates in real time.</li>
+            <li>Hover over a pending expense to reveal the delete button.</li>
+          </ol>
+        </div>
+
+        <div>
+          <p class="text-sm font-semibold text-gray-800 mb-1">Expense History</p>
+          <ol class="text-xs text-gray-500 leading-relaxed space-y-0.5 list-decimal list-inside">
+            <li>Navigate to <code class="bg-gray-100 px-1 rounded">/expense-history</code> via the sidebar (requires login).</li>
+            <li>The <strong>current month</strong> chart is always live — it reflects every expense added or deleted on the Expenses page in real time.</li>
+            <li>The <strong>past 6 months</strong> are generated pseudo-randomly per user on first login and cached in sessionStorage; they differ between Alice and Bob.</li>
+            <li>Each bar chart groups spending by category (Travel, Meals, Software, Office, Training, Other).</li>
+            <li>The <strong>layout</strong> can be toggled between <em>list</em> (single column) and <em>grid</em> (two columns on tablet+, always list on mobile) via <strong>DEV panel → history → layout</strong>.</li>
+            <li>If <code class="bg-gray-100 px-1 rounded">history.enabled</code> is turned off in the DEV panel, the page shows a locked placeholder instead of charts.</li>
+          </ol>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── DEV Panel ── -->
+    <section>
+      <h2 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="h-5 w-1 rounded-full bg-indigo-500 inline-block"></span>
+        DEV Panel — Runtime Configuration
+      </h2>
+      <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+        Click the <strong class="text-gray-700">DEV</strong> tab on the right edge of the screen.
+        Settings are stored per-user in sessionStorage and take effect immediately after
+        <em>Save &amp; Close</em>. <em>Reset</em> restores defaults without needing to save.
+        The panel is accessible before login.
+      </p>
+
+      <div class="space-y-3">
+        <div class="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3">
+          <p class="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">auth</p>
+          <ul class="text-xs text-gray-500 space-y-1 leading-relaxed">
+            <li><code class="bg-white border border-gray-200 px-1 rounded">sessionTime</code> — total session length in ms (default 5 min).</li>
+            <li><code class="bg-white border border-gray-200 px-1 rounded">timeBeforeExpiredTrigger</code> — ms before expiry to show warning toast (0 = disabled).</li>
+            <li><code class="bg-white border border-gray-200 px-1 rounded">triggerMessage</code> — custom text for the warning toast.</li>
+          </ul>
+        </div>
+        <div class="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3">
+          <p class="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">expenses</p>
+          <ul class="text-xs text-gray-500 space-y-1 leading-relaxed">
+            <li><code class="bg-white border border-gray-200 px-1 rounded">enabled</code> — toggles the Expenses page feature. Off shows a locked placeholder.</li>
+            <li><code class="bg-white border border-gray-200 px-1 rounded">maxMonthlyAmount</code> — spending cap; disables <em>Add Expense</em> and shows a quota banner when exceeded.</li>
+          </ul>
+        </div>
+        <div class="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3">
+          <p class="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">history</p>
+          <ul class="text-xs text-gray-500 space-y-1 leading-relaxed">
+            <li><code class="bg-white border border-gray-200 px-1 rounded">enabled</code> — toggles the Expense History page. Off shows a locked placeholder.</li>
+            <li><code class="bg-white border border-gray-200 px-1 rounded">layout</code> — <em>list</em> (single column) or <em>grid</em> (2 columns on tablet+; always list on mobile).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="pb-2 text-center text-xs text-gray-300">Semine demo · built for interview purposes</div>
+
+  </div>
+
+</div>

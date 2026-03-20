@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { AppConfigService, DEMO_USER_IDS, DemoUserId } from '../../../core/services/app-config.service';
-import { AppConfig } from '../../../core/models/app-config.model';
+import { AppConfig, HistoryConfig } from '../../../core/models/app-config.model';
 
 interface DevFormState {
   sessionTimeMs: number;
@@ -8,6 +8,8 @@ interface DevFormState {
   triggerMessage: string;
   expensesEnabled: boolean;
   expensesMaxAmount: number;
+  historyEnabled: boolean;
+  historyLayout: HistoryConfig['layout'];
 }
 
 const DEMO_USERS: { id: DemoUserId; name: string }[] = [
@@ -22,6 +24,8 @@ function configToForm(cfg: AppConfig): DevFormState {
     triggerMessage: cfg.auth.triggerMessage,
     expensesEnabled: cfg.expenses.enabled,
     expensesMaxAmount: cfg.expenses.maxMonthlyAmount,
+    historyEnabled: cfg.history.enabled,
+    historyLayout: cfg.history.layout,
   };
 }
 
@@ -35,6 +39,10 @@ function formToConfig(form: DevFormState): AppConfig {
     expenses: {
       enabled: form.expensesEnabled,
       maxMonthlyAmount: form.expensesMaxAmount,
+    },
+    history: {
+      enabled: form.historyEnabled,
+      layout: form.historyLayout,
     },
   };
 }
@@ -68,7 +76,6 @@ export class DevPanelComponent {
 
   toggle(): void {
     if (!this.isOpen()) {
-      // Refresh form states from storage when opening
       this._formStates.set(
         Object.fromEntries(
           DEMO_USER_IDS.map((id) => [id, configToForm(this.configService.getConfigForUser(id))])
@@ -102,6 +109,14 @@ export class DevPanelComponent {
 
   toggleExpenses(): void {
     this.patchForm({ expensesEnabled: !this.currentForm().expensesEnabled });
+  }
+
+  toggleHistory(): void {
+    this.patchForm({ historyEnabled: !this.currentForm().historyEnabled });
+  }
+
+  setHistoryLayout(layout: HistoryConfig['layout']): void {
+    this.patchForm({ historyLayout: layout });
   }
 
   save(): void {

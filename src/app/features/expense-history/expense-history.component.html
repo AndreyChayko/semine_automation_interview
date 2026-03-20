@@ -1,4 +1,4 @@
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
   <!-- Invisible sizer: ResizeObserver reads its width to drive all charts -->
   <div data-chart-sizer class="w-full h-0 overflow-hidden pointer-events-none" aria-hidden="true"></div>
@@ -15,6 +15,7 @@
       <p class="text-gray-400 text-sm max-w-xs leading-relaxed">
         You don't have this feature enabled. Ask your admin to switch it on for you.
       </p>
+      <p class="mt-4 text-xs text-gray-300 italic">Configure via DEV panel → history → enabled</p>
     </div>
 
   } @else {
@@ -65,13 +66,13 @@
 
     <!-- ── Past months ───────────────────────────────────────────────────── -->
     @if (historicalMonths().length > 0) {
-      <div class="space-y-6">
+      <div [class]="wrapperClass()">
         @for (snapshot of historicalMonths(); track snapshot.monthKey) {
           <div>
-            <div class="flex items-center gap-2 mb-4">
-              <span class="h-2 w-2 rounded-full bg-gray-300"></span>
-              <h2 class="text-base font-bold text-gray-700">{{ snapshot.monthLabel }}</h2>
-              <span class="ml-auto text-sm font-semibold text-gray-500">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="h-2 w-2 rounded-full bg-gray-300 shrink-0"></span>
+              <h2 class="text-base font-bold text-gray-700 truncate">{{ snapshot.monthLabel }}</h2>
+              <span class="ml-auto text-sm font-semibold text-gray-500 shrink-0">
                 $&#x200B;{{ snapshot.total.toFixed(2) }}
               </span>
             </div>

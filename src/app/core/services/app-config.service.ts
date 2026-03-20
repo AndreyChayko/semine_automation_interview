@@ -15,6 +15,7 @@ function deepMerge(saved: AppConfig): AppConfig {
   return {
     auth: { ...DEFAULT_APP_CONFIG.auth, ...saved.auth },
     expenses: { ...DEFAULT_APP_CONFIG.expenses, ...saved.expenses },
+    history: { ...DEFAULT_APP_CONFIG.history, ...saved.history },
   };
 }
 

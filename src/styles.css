@@ -3,6 +3,18 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Fluid base font size: 15 px on mobile → 18 px on wide desktops.
+   * All Tailwind rem-based sizes (text-sm, text-base, etc.) scale with it.
+   * clamp(min, preferred, max) — preferred = 0.4 vw + 13 px
+   *   375 px  → 14.5 px  → clamped to 15 px
+   *   768 px  → 16.1 px
+   *  1280 px  → 18.1 px  → clamped to 18 px
+   */
+  html {
+    font-size: clamp(15px, 0.4vw + 13px, 18px);
+  }
+
   body {
     @apply text-gray-900;
   }

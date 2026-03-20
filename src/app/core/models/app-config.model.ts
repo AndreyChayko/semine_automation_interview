@@ -14,14 +14,20 @@ export interface ExpensesConfig {
   maxMonthlyAmount: number;
 }
 
+export interface HistoryConfig {
+  /** Whether the expense history page is enabled for this user */
+  enabled: boolean;
+  /** How charts are arranged: single column list or responsive tile grid */
+  layout: 'list' | 'grid';
+}
+
 export interface AppConfig {
   auth: AuthConfig;
   expenses: ExpensesConfig;
+  history: HistoryConfig;
 }
 
 // ─── Default configuration ────────────────────────────────────────────────────
-// Edit these values here to change global defaults.
-// They can also be overridden at runtime via the DEV panel on the login page.
 export const DEFAULT_APP_CONFIG: AppConfig = {
   auth: {
     sessionTime: 5 * 60 * 1000,          // 5 minutes
@@ -31,5 +37,9 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   expenses: {
     enabled: true,
     maxMonthlyAmount: 1500,
+  },
+  history: {
+    enabled: true,
+    layout: 'list',
   },
 };

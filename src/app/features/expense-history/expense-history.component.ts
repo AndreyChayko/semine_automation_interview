@@ -18,7 +18,11 @@ const CHART_SCHEME: Color = {
   domain: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6'],
 };
 
-const CHART_HEIGHT = 260;
+const CHART_HEIGHT = 240;
+/** Tailwind sm breakpoint in px — below this, always single-column */
+const SM_BREAKPOINT = 640;
+/** Gap between grid columns in px (gap-5 = 20px) */
+const GRID_GAP = 20;
 
 @Component({
   selector: 'app-expense-history',
@@ -32,19 +36,36 @@ export class ExpenseHistoryComponent implements AfterViewInit, OnDestroy {
   private readonly el = inject(ElementRef<HTMLElement>);
 
   private resizeObserver!: ResizeObserver;
-  private readonly _chartWidth = signal(600);
+  /** Full inner width of the content column (tracked via sizer div) */
+  private readonly _containerWidth = signal(600);
 
   readonly chartScheme = CHART_SCHEME;
-  /** Recomputed on every container resize — drives all charts in the template */
-  readonly chartView = computed<[number, number]>(() => [this._chartWidth(), CHART_HEIGHT]);
 
-  readonly isEnabled = computed(() => this.configService.config().expenses.enabled);
+  readonly layout = computed(() => this.configService.config().history.layout);
+  readonly isEnabled = computed(() => this.configService.config().history.enabled);
   readonly currentSnapshot = this.historyService.currentMonthSnapshot;
   readonly historicalMonths = this.historyService.historicalMonths;
 
+  /**
+   * Chart width adapts to layout + container size.
+   * Grid mode: 2 columns on ≥sm screens, 1 column (full width) on mobile.
+   * List mode: always full width.
+   */
+  readonly chartView = computed<[number, number]>(() => {
+    const total = this._containerWidth();
+    const isGrid = this.layout() === 'grid' && total >= SM_BREAKPOINT;
+    const w = isGrid ? Math.floor((total - GRID_GAP) / 2) : total;
+    return [Math.max(w, 180), CHART_HEIGHT];
+  });
+
+  /** CSS classes for the months wrapper — grid or list */
+  readonly wrapperClass = computed(() =>
+    this.layout() === 'grid'
+      ? 'grid grid-cols-1 sm:grid-cols-2 gap-5'
+      : 'flex flex-col gap-6'
+  );
+
   ngAfterViewInit(): void {
-    // Observe a dedicated sizer <div #sizer> inside the template so we always
-    // get the actual inner-content width of the chart cards.
     const sizer: HTMLElement | null = (this.el.nativeElement as HTMLElement).querySelector(
       '[data-chart-sizer]'
     );
@@ -52,12 +73,11 @@ export class ExpenseHistoryComponent implements AfterViewInit, OnDestroy {
 
     this.resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width ?? target.clientWidth;
-      this._chartWidth.set(Math.max(Math.floor(width), 180));
+      this._containerWidth.set(Math.max(Math.floor(width), 180));
     });
 
     this.resizeObserver.observe(target);
-    // Fire once immediately
-    this._chartWidth.set(Math.max(target.clientWidth, 180));
+    this._containerWidth.set(Math.max(target.clientWidth, 180));
   }
 
   ngOnDestroy(): void {
