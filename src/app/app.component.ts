@@ -27,15 +27,15 @@ import { SessionTimerService } from './core/services/session-timer.service';
   standalone: true,
   imports: [RouterOutlet, NavbarComponent, SidebarComponent, ToastContainerComponent],
   template: `
-    <div class="min-h-screen flex flex-col">
+    <div class="h-screen flex flex-col overflow-hidden">
 
       <app-navbar />
 
-      <div class="flex flex-1 overflow-hidden">
+      <div class="flex flex-1 min-h-0">
         @if (auth.isAuthenticated()) {
           <app-sidebar />
         }
-        <main class="flex-1 overflow-auto">
+        <main class="flex-1 overflow-y-auto">
           <router-outlet />
         </main>
       </div>

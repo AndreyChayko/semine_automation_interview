@@ -44,19 +44,21 @@ export class AppConfigService {
   }
 
   resetForUser(userId: string): void {
-    this._configs.update((map) => {
-      const next = { ...map };
-      delete next[userId];
-      return next;
-    });
-    this.storage.remove(storageKey(userId));
+    this._configs.update((map) => ({ ...map, [userId]: DEFAULT_APP_CONFIG }));
+    this.storage.set(storageKey(userId), DEFAULT_APP_CONFIG);
   }
 
   private loadAll(): Record<string, AppConfig> {
     const result: Record<string, AppConfig> = {};
     for (const id of DEMO_USER_IDS) {
       const saved = this.storage.get<AppConfig>(storageKey(id));
-      if (saved) result[id] = deepMerge(saved);
+      if (saved) {
+        result[id] = deepMerge(saved);
+      } else {
+        // Persist defaults immediately so sessionStorage is always populated
+        result[id] = DEFAULT_APP_CONFIG;
+        this.storage.set(storageKey(id), DEFAULT_APP_CONFIG);
+      }
     }
     return result;
   }

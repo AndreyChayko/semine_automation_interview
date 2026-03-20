@@ -31,6 +31,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'expense-history',
+    loadComponent: () =>
+      import('./features/expense-history/expense-history.component').then(
+        (m) => m.ExpenseHistoryComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: '**',
     redirectTo: 'login',
   },
