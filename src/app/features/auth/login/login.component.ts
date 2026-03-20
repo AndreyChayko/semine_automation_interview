@@ -30,9 +30,17 @@ export class LoginComponent {
   readonly showPassword = signal(false);
   readonly isLoading = signal(false);
   readonly serverError = signal<string | null>(null);
-  readonly copiedField = signal<'email' | 'password' | null>(null);
+  readonly copiedField = signal<'email' | 'password' | 'email2' | 'password2' | null>(null);
 
-  copyToClipboard(value: string, field: 'email' | 'password'): void {
+  fillCredentials(emailVal: string, passwordVal: string): void {
+    this.email.set(emailVal);
+    this.email.touch();
+    this.password.set(passwordVal);
+    this.password.touch();
+    this.serverError.set(null);
+  }
+
+  copyToClipboard(value: string, field: 'email' | 'password' | 'email2' | 'password2'): void {
     navigator.clipboard.writeText(value).then(() => {
       this.copiedField.set(field);
       setTimeout(() => this.copiedField.set(null), 2000);

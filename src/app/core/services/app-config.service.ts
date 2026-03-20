@@ -1,32 +1,63 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { AppConfig, DEFAULT_APP_CONFIG } from '../models/app-config.model';
 import { StorageService } from './storage.service';
+import { AuthService } from './auth.service';
 
-const CONFIG_KEY = 'app_config';
+/** User IDs of the two demo accounts (must match mock-api.service.ts) */
+export const DEMO_USER_IDS = ['1', '2'] as const;
+export type DemoUserId = (typeof DEMO_USER_IDS)[number];
+
+function storageKey(userId: string): string {
+  return `app_config_${userId}`;
+}
+
+function deepMerge(saved: AppConfig): AppConfig {
+  return {
+    auth: { ...DEFAULT_APP_CONFIG.auth, ...saved.auth },
+    expenses: { ...DEFAULT_APP_CONFIG.expenses, ...saved.expenses },
+  };
+}
 
 @Injectable({ providedIn: 'root' })
 export class AppConfigService {
   private readonly storage = inject(StorageService);
+  private readonly auth = inject(AuthService);
 
-  private readonly _config = signal<AppConfig>(this.loadConfig());
-  readonly config = this._config.asReadonly();
+  /** Per-user config map; falls back to DEFAULT_APP_CONFIG when key absent */
+  private readonly _configs = signal<Record<string, AppConfig>>(this.loadAll());
 
-  save(config: AppConfig): void {
-    this._config.set(config);
-    this.storage.set(CONFIG_KEY, config);
+  /** Active config for the currently logged-in user (or default if no user) */
+  readonly config = computed(() => {
+    const userId = this.auth.user()?.id;
+    return userId
+      ? (this._configs()[userId] ?? DEFAULT_APP_CONFIG)
+      : DEFAULT_APP_CONFIG;
+  });
+
+  getConfigForUser(userId: string): AppConfig {
+    return this._configs()[userId] ?? DEFAULT_APP_CONFIG;
   }
 
-  reset(): void {
-    this._config.set(DEFAULT_APP_CONFIG);
-    this.storage.remove(CONFIG_KEY);
+  saveForUser(userId: string, config: AppConfig): void {
+    this._configs.update((map) => ({ ...map, [userId]: config }));
+    this.storage.set(storageKey(userId), config);
   }
 
-  private loadConfig(): AppConfig {
-    const saved = this.storage.get<AppConfig>(CONFIG_KEY);
-    if (!saved) return DEFAULT_APP_CONFIG;
-    // Deep merge to guard against missing keys after schema changes
-    return {
-      auth: { ...DEFAULT_APP_CONFIG.auth, ...saved.auth },
-    };
+  resetForUser(userId: string): void {
+    this._configs.update((map) => {
+      const next = { ...map };
+      delete next[userId];
+      return next;
+    });
+    this.storage.remove(storageKey(userId));
+  }
+
+  private loadAll(): Record<string, AppConfig> {
+    const result: Record<string, AppConfig> = {};
+    for (const id of DEMO_USER_IDS) {
+      const saved = this.storage.get<AppConfig>(storageKey(id));
+      if (saved) result[id] = deepMerge(saved);
+    }
+    return result;
   }
 }

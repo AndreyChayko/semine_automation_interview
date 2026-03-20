@@ -7,8 +7,16 @@ export interface AuthConfig {
   triggerMessage: string;
 }
 
+export interface ExpensesConfig {
+  /** Whether expense registration is enabled for this user */
+  enabled: boolean;
+  /** Max total expenses allowed per calendar month (in base currency) */
+  maxMonthlyAmount: number;
+}
+
 export interface AppConfig {
   auth: AuthConfig;
+  expenses: ExpensesConfig;
 }
 
 // ─── Default configuration ────────────────────────────────────────────────────
@@ -19,5 +27,9 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
     sessionTime: 5 * 60 * 1000,          // 5 minutes
     timeBeforeExpiredTrigger: 60 * 1000, // warn 1 minute before expiry
     triggerMessage: 'Your session will expire in 1 minute. Please save your work.',
+  },
+  expenses: {
+    enabled: true,
+    maxMonthlyAmount: 1500,
   },
 };

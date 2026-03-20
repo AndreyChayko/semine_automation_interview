@@ -1,6 +1,43 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { AppConfigService } from '../../../core/services/app-config.service';
+import { AppConfigService, DEMO_USER_IDS, DemoUserId } from '../../../core/services/app-config.service';
 import { AppConfig } from '../../../core/models/app-config.model';
+
+interface DevFormState {
+  sessionTimeMs: number;
+  triggerTimeMs: number;
+  triggerMessage: string;
+  expensesEnabled: boolean;
+  expensesMaxAmount: number;
+}
+
+const DEMO_USERS: { id: DemoUserId; name: string }[] = [
+  { id: '1', name: 'Alice' },
+  { id: '2', name: 'Bob' },
+];
+
+function configToForm(cfg: AppConfig): DevFormState {
+  return {
+    sessionTimeMs: cfg.auth.sessionTime,
+    triggerTimeMs: cfg.auth.timeBeforeExpiredTrigger,
+    triggerMessage: cfg.auth.triggerMessage,
+    expensesEnabled: cfg.expenses.enabled,
+    expensesMaxAmount: cfg.expenses.maxMonthlyAmount,
+  };
+}
+
+function formToConfig(form: DevFormState): AppConfig {
+  return {
+    auth: {
+      sessionTime: form.sessionTimeMs,
+      timeBeforeExpiredTrigger: form.triggerTimeMs,
+      triggerMessage: form.triggerMessage || 'Session expiring soon.',
+    },
+    expenses: {
+      enabled: form.expensesEnabled,
+      maxMonthlyAmount: form.expensesMaxAmount,
+    },
+  };
+}
 
 @Component({
   selector: 'app-dev-panel',
@@ -11,57 +48,75 @@ export class DevPanelComponent {
   private readonly configService = inject(AppConfigService);
 
   readonly isOpen = signal(false);
+  readonly users = DEMO_USERS;
+  readonly selectedUserId = signal<DemoUserId>('1');
 
-  // ─── Local form state (mirrors AppConfig structure) ───────────────────────
-  readonly sessionTimeMs = signal(this.configService.config().auth.sessionTime);
-  readonly triggerTimeMs = signal(this.configService.config().auth.timeBeforeExpiredTrigger);
-  readonly triggerMessage = signal(this.configService.config().auth.triggerMessage);
+  /** Per-user unsaved form states — preserved when switching tabs */
+  private readonly _formStates = signal<Record<string, DevFormState>>(
+    Object.fromEntries(
+      DEMO_USER_IDS.map((id) => [id, configToForm(this.configService.getConfigForUser(id))])
+    ) as Record<DemoUserId, DevFormState>
+  );
 
-  readonly sessionTimeHint = computed(() => this.msToHuman(this.sessionTimeMs()));
+  readonly currentForm = computed(() => this._formStates()[this.selectedUserId()]);
+
+  readonly sessionTimeHint = computed(() => this.msToHuman(this.currentForm().sessionTimeMs));
   readonly triggerTimeHint = computed(() => {
-    const ms = this.triggerTimeMs();
+    const ms = this.currentForm().triggerTimeMs;
     return ms === 0 ? 'disabled' : this.msToHuman(ms);
   });
 
   toggle(): void {
     if (!this.isOpen()) {
-      // Re-sync from saved config when opening
-      const cfg = this.configService.config();
-      this.sessionTimeMs.set(cfg.auth.sessionTime);
-      this.triggerTimeMs.set(cfg.auth.timeBeforeExpiredTrigger);
-      this.triggerMessage.set(cfg.auth.triggerMessage);
+      // Refresh form states from storage when opening
+      this._formStates.set(
+        Object.fromEntries(
+          DEMO_USER_IDS.map((id) => [id, configToForm(this.configService.getConfigForUser(id))])
+        ) as Record<DemoUserId, DevFormState>
+      );
     }
     this.isOpen.update((v) => !v);
   }
 
-  onNumberInput(setter: (v: number) => void, event: Event): void {
+  selectUser(id: DemoUserId): void {
+    this.selectedUserId.set(id);
+  }
+
+  patchForm(patch: Partial<DevFormState>): void {
+    const uid = this.selectedUserId();
+    this._formStates.update((states) => ({
+      ...states,
+      [uid]: { ...states[uid], ...patch },
+    }));
+  }
+
+  onNumberInput(key: keyof Pick<DevFormState, 'sessionTimeMs' | 'triggerTimeMs' | 'expensesMaxAmount'>, event: Event): void {
     const raw = (event.target as HTMLInputElement).value;
     const val = parseInt(raw, 10);
-    setter(isNaN(val) ? 0 : Math.max(0, val));
+    this.patchForm({ [key]: isNaN(val) ? 0 : Math.max(0, val) });
   }
 
   onTextInput(event: Event): void {
-    this.triggerMessage.set((event.target as HTMLInputElement).value);
+    this.patchForm({ triggerMessage: (event.target as HTMLInputElement).value });
+  }
+
+  toggleExpenses(): void {
+    this.patchForm({ expensesEnabled: !this.currentForm().expensesEnabled });
   }
 
   save(): void {
-    const config: AppConfig = {
-      auth: {
-        sessionTime: this.sessionTimeMs(),
-        timeBeforeExpiredTrigger: this.triggerTimeMs(),
-        triggerMessage: this.triggerMessage() || 'Session expiring soon.',
-      },
-    };
-    this.configService.save(config);
+    const uid = this.selectedUserId();
+    this.configService.saveForUser(uid, formToConfig(this.currentForm()));
     this.isOpen.set(false);
   }
 
   reset(): void {
-    this.configService.reset();
-    const cfg = this.configService.config();
-    this.sessionTimeMs.set(cfg.auth.sessionTime);
-    this.triggerTimeMs.set(cfg.auth.timeBeforeExpiredTrigger);
-    this.triggerMessage.set(cfg.auth.triggerMessage);
+    const uid = this.selectedUserId();
+    this.configService.resetForUser(uid);
+    this._formStates.update((states) => ({
+      ...states,
+      [uid]: configToForm(this.configService.getConfigForUser(uid)),
+    }));
   }
 
   private msToHuman(ms: number): string {

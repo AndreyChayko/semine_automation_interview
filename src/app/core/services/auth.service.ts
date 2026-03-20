@@ -15,9 +15,13 @@ export class AuthService {
 
   private readonly _state = signal<AuthState>(this.loadFromStorage());
 
+  /** Increments on every fresh login (not on page-refresh restore). */
+  private readonly _loginTrigger = signal(0);
+
   readonly user = computed(() => this._state().user);
   readonly token = computed(() => this._state().token);
   readonly isAuthenticated = computed(() => this._state().isAuthenticated);
+  readonly loginTrigger = this._loginTrigger.asReadonly();
 
   constructor() {
     // Persist state to sessionStorage on every change
@@ -30,6 +34,7 @@ export class AuthService {
     return this.api.login(credentials).pipe(
       tap(({ user, token }) => {
         this._state.set({ user, token, isAuthenticated: true });
+        this._loginTrigger.update((n) => n + 1);
         this.router.navigate(['/profile']);
       })
     );
